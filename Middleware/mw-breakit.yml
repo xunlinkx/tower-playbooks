@@ -1,0 +1,39 @@
+- name: add the bad line to the expected file 
+  hosts: "{{HOSTS}}"
+  become: true
+  tasks:
+
+    - name: Ensure jbossuser exists
+      user:
+        name: jbossuser
+
+    - name: Ensure path exists
+      file:
+        path: '/var/opt/amq-broker/broker/etc/'
+        owner: jbossuser
+        group: jbossuser
+        recurse: yes
+
+    - name: Ensure file exits
+      file:
+        path: '/var/opt/amq-broker/broker/etc/broker.xml'
+        owner: jbossuser
+        group: jbossuser
+        mode: 0644
+        state: touch
+
+    - name: Make sure the line is in the file
+      lineinfile:
+        path: "/var/opt/amq-broker/broker/etc/broker.xml"
+        backup: yes
+        regexp: '(^\s*\<journal-pool-files\>)\s*(-*\d+)\s*(\<\/journal-pool-files\>\s*)'
+        line: '      <journal-pool-files>-1</journal-pool-files>'
+
+
+    - name: Replace the journal-pool-files value
+      lineinfile:
+        backup: yes
+        backrefs: yes
+        path: "/var/opt/amq-broker/broker/etc/broker.xml"
+        regexp: '(^\s*\<journal-pool-files\>)(-*\d)(\<\/journal-pool-files\>)'
+        line: '\1-1\3'

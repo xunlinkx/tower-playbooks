@@ -1,0 +1,9 @@
+- name: Disable an essential openshift service 
+  hosts: ocp3.10.12.216.48.nip.io
+  become: true
+
+  tasks:
+    - name: stop an essential OpenShift service
+      service:
+        name: docker
+        state: stopped
